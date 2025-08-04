@@ -1,0 +1,17 @@
+name = "habits-tracker"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "habits-tracker"
+
+[[env.production.routes]]
+pattern = "*"
+zone_name = "your-domain.com"  # 如果有自定义域名，请替换这里
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"
+
+[build.environment_variables]
+NODE_VERSION = "18"
