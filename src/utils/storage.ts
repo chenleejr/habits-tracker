@@ -1,4 +1,5 @@
 import { Task, TaskCompletion, UserData, AppState } from '../types';
+import { getTodayLocalString } from './timezone';
 
 const STORAGE_KEYS = {
   TASKS: 'habits_tasks',
@@ -11,7 +12,7 @@ const DEFAULT_USER_DATA: UserData = {
   totalPoints: 0,
   level: 1,
   streak: 0,
-  lastActiveDate: new Date().toISOString().split('T')[0],
+  lastActiveDate: getTodayLocalString(),
   health: 100,
   maxHealth: 100,
   settings: {

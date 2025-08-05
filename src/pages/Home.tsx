@@ -5,6 +5,7 @@ import TaskCard from '../components/TaskCard';
 import LevelProgress from '../components/LevelProgress';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { getTodayLocalString, formatDateToChinese } from '../utils/timezone';
 
 const Home = () => {
   const {
@@ -39,27 +40,12 @@ const Home = () => {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (date.toDateString() === today.toDateString()) {
-      return '今天';
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return '昨天';
-    } else {
-      return date.toLocaleDateString('zh-CN', { 
-        month: 'short', 
-        day: 'numeric',
-        weekday: 'short'
-      });
-    }
+    return formatDateToChinese(dateStr);
   };
 
   return (
     <div className="p-4 space-y-4">
-      {/* 等级进度和血量条 */}
+      {/* 境界进度和灵力条 */}
       <LevelProgress />
       
       {/* 今日概览 */}
@@ -67,7 +53,7 @@ const Home = () => {
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-gray-900 flex items-center space-x-2">
             <Calendar size={20} className="text-blue-500" />
-            <span>{formatDate(selectedDate)}</span>
+            <span>{formatDate(getTodayLocalString())}</span>
           </h2>
           <div className="flex items-center space-x-1 text-green-600">
             <TrendingUp size={16} />

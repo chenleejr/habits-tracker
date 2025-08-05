@@ -1,4 +1,5 @@
 import { Task, TaskCompletion, POINTS_CONFIG, LEVELS, LevelInfo } from '../types';
+import { getTodayLocalString, getLocalDateString, createLocalDate } from './timezone';
 
 // 根据任务难度计算积分
 export const calculateTaskPoints = (difficulty: Task['difficulty']): number => {
@@ -65,9 +66,9 @@ export const calculateDailyPoints = (
   tasks: Task[],
   date: string
 ): number => {
-  const dateStr = date.split('T')[0];
+  const dateStr = getLocalDateString(new Date(date));
   const dailyCompletions = completions.filter(completion => 
-    completion.completedAt.split('T')[0] === dateStr
+    getLocalDateString(new Date(completion.completedAt)) === dateStr
   );
   
   return dailyCompletions.reduce((total, completion) => total + completion.points, 0);
@@ -79,10 +80,10 @@ export const calculateDailyPenalty = (
   completions: TaskCompletion[],
   date: string
 ): number => {
-  const dateStr = date.split('T')[0];
+  const dateStr = getLocalDateString(new Date(date));
   const requiredTasks = tasks.filter(task => task.type === 'required');
   const dailyCompletions = completions.filter(completion => 
-    completion.completedAt.split('T')[0] === dateStr
+    getLocalDateString(new Date(completion.completedAt)) === dateStr
   );
   
   let penalty = 0;
@@ -102,16 +103,16 @@ export const calculateStreak = (
   completions: TaskCompletion[],
   tasks: Task[]
 ): number => {
-  const today = new Date();
+  const todayStr = getTodayLocalString();
   let streak = 0;
-  let currentDate = new Date(today);
+  let currentDate = createLocalDate(todayStr);
   
   // 从今天开始往前检查
   while (true) {
-    const dateStr = currentDate.toISOString().split('T')[0];
+    const dateStr = getLocalDateString(currentDate);
     const requiredTasks = tasks.filter(task => task.type === 'required');
     const dailyCompletions = completions.filter(completion => 
-      completion.completedAt.split('T')[0] === dateStr
+      getLocalDateString(new Date(completion.completedAt)) === dateStr
     );
     
     // 检查当天是否完成了所有必做任务
@@ -161,10 +162,10 @@ export const calculateDailyHealthPenalty = (
   completions: TaskCompletion[],
   date: string
 ): number => {
-  const dateStr = date.split('T')[0];
+  const dateStr = getLocalDateString(new Date(date));
   const requiredTasks = tasks.filter(task => task.type === 'required');
   const dailyCompletions = completions.filter(completion => 
-    completion.completedAt.split('T')[0] === dateStr
+    getLocalDateString(new Date(completion.completedAt)) === dateStr
   );
   
   let penalty = 0;

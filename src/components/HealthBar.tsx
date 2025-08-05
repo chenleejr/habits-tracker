@@ -21,7 +21,7 @@ const HealthBar = () => {
             }`}
             fill={healthPercentage > 0 ? 'currentColor' : 'none'}
           />
-          <span className="text-gray-600">血量</span>
+          <span className="text-gray-600">灵力</span>
           {isCritical && (
             <AlertTriangle className="w-3 h-3 text-red-400 animate-bounce" />
           )}
@@ -44,7 +44,7 @@ const HealthBar = () => {
           />
         </div>
         
-        {/* 血量百分比 */}
+        {/* 灵力百分比 */}
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-xs font-medium text-gray-800 drop-shadow-sm">
             {Math.round(healthPercentage)}%
@@ -60,7 +60,7 @@ const HealthBar = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          血量危险！
+          灵力不足！
         </motion.div>
       )}
     </div>

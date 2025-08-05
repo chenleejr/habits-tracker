@@ -24,7 +24,7 @@ const LevelProgress = () => {
           </div>
           <div>
             <h3 className="font-bold text-gray-900">{currentLevel.name}</h3>
-            <p className="text-sm text-gray-500">等级 {userData.level}</p>
+            <p className="text-sm text-gray-500">境界 {userData.level}</p>
           </div>
         </div>
         
@@ -33,7 +33,7 @@ const LevelProgress = () => {
             <Trophy size={16} />
             <span className="font-bold">{userData.totalPoints}</span>
           </div>
-          <p className="text-xs text-gray-500">总积分</p>
+          <p className="text-xs text-gray-500">修为值</p>
         </div>
       </div>
 
@@ -44,9 +44,9 @@ const LevelProgress = () => {
       {!isMaxLevel && (
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">升级进度</span>
+            <span className="text-gray-600">突破进度</span>
             <span className="text-gray-500">
-              还需 {pointsToNext} 积分升级
+              还需 {pointsToNext} 修为值突破
             </span>
           </div>
           
@@ -85,7 +85,7 @@ const LevelProgress = () => {
       {isMaxLevel && (
         <div className="flex items-center justify-center space-x-2 py-2">
           <Zap className="text-yellow-500" size={16} />
-          <span className="text-sm font-medium text-gray-700">已达到最高等级！</span>
+          <span className="text-sm font-medium text-gray-700">已登仙成功，修为圆满！</span>
           <Zap className="text-yellow-500" size={16} />
         </div>
       )}

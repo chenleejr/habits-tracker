@@ -18,6 +18,11 @@ import {
   calculateDailyHealthPenalty,
   clampHealth
 } from '../utils/points';
+import {
+  getTodayLocalString,
+  getLocalDateString,
+  getYesterdayLocalString
+} from '../utils/timezone';
 
 interface AppStore extends AppState {
   // Actions
@@ -49,7 +54,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     totalPoints: 0,
     level: 1,
     streak: 0,
-    lastActiveDate: new Date().toISOString().split('T')[0],
+    lastActiveDate: getTodayLocalString(),
     health: 100,
     maxHealth: 100,
     settings: {
@@ -59,7 +64,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       notifications: true
     }
   },
-  selectedDate: new Date().toISOString().split('T')[0],
+  selectedDate: getTodayLocalString(),
   isLoading: false,
 
   // Actions
@@ -70,10 +75,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
       const completions = getCompletions();
       const userData = getUserData();
       
+      // 重置selectedDate为当前真实日期，确保每次应用启动时都从真实日期开始
+      const currentRealDate = getTodayLocalString();
+      
       set({
         tasks,
         completions,
         userData,
+        selectedDate: currentRealDate,
         isLoading: false
       });
       
@@ -140,23 +149,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
   completeTask: (taskId) => {
     const { tasks, completions, userData, selectedDate } = get();
     
-    console.log('🎯 [completeTask] 开始执行', {
-      taskId,
-      selectedDate,
-      realDate: new Date().toISOString().split('T')[0],
-      currentCompletions: completions.length
-    });
-    
     const task = tasks.find(t => t.id === taskId);
     
     if (!task) {
-      console.log('❌ [completeTask] 任务未找到', { taskId });
       return;
     }
-    
-    console.log('📋 [completeTask] 找到任务', {
-      task: { id: task.id, name: task.name, difficulty: task.difficulty }
-    });
     
     const points = calculateTaskPoints(task.difficulty);
     const healthRecovered = calculateHealthRecovery(task.difficulty);
@@ -170,14 +167,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       completedAt: completionDate,
       points
     };
-    
-    console.log('📅 [completeTask] 日期信息', {
-      selectedDate,
-      completionDate,
-      completedAt: newCompletion.completedAt
-    });
-    
-    console.log('✅ [completeTask] 创建完成记录', { newCompletion });
+
     
     const updatedCompletions = [...completions, newCompletion];
     const newTotalPoints = userData.totalPoints + points;
@@ -189,20 +179,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     // 计算新的血量（恢复血量但不超过最大值）
     const newHealth = clampHealth(userData.health + healthRecovered, userData.maxHealth);
     
-    console.log('📊 [completeTask] 状态更新前', {
-      oldUserData: {
-        totalPoints: userData.totalPoints,
-        level: userData.level,
-        streak: userData.streak,
-        health: userData.health,
-        lastActiveDate: userData.lastActiveDate
-      },
-      rewards: {
-        points,
-        healthRecovered,
-        wasLevelUp
-      }
-    });
+
     
     const updatedUserData: UserData = {
       ...userData,
@@ -218,34 +195,17 @@ export const useAppStore = create<AppStore>((set, get) => ({
       userData: updatedUserData
     });
     
-    const updatedState = get();
-    console.log('📊 [completeTask] 状态更新后', {
-      newUserData: {
-        totalPoints: updatedState.userData.totalPoints,
-        level: updatedState.userData.level,
-        streak: updatedState.userData.streak,
-        health: updatedState.userData.health,
-        lastActiveDate: updatedState.userData.lastActiveDate
-      },
-      totalCompletions: updatedState.completions.length
-    });
-    
-    console.log('💾 [completeTask] 开始保存到存储');
     saveCompletions(updatedCompletions);
     saveUserData(updatedUserData);
-    console.log('💾 [completeTask] 保存完成');
     
     // 触发升级动画（如果升级了）
     if (wasLevelUp && userData.settings.animationsEnabled) {
-      console.log('🎉 [completeTask] 触发升级事件', { newLevel, oldLevel });
       // 触发全局升级事件
       const levelUpEvent = new CustomEvent('levelUp', {
         detail: { oldLevel, newLevel }
       });
       window.dispatchEvent(levelUpEvent);
     }
-    
-    console.log('✨ [completeTask] 执行完成');
     
     return { points, wasLevelUp, newLevel, healthRecovered };
   },
@@ -281,7 +241,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       totalPoints: 0,
       level: 1,
       streak: 0,
-      lastActiveDate: new Date().toISOString().split('T')[0],
+      lastActiveDate: getTodayLocalString(),
       health: 100,
       maxHealth: 100,
       settings: {
@@ -307,24 +267,18 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const { tasks, completions, userData } = get();
     const dateStr = date.split('T')[0];
     
-    console.log(`🔍 检查 ${dateStr} 的惩罚:`);
-    
     // 获取当天的必做任务
     const requiredTasks = tasks.filter(task => task.type === 'required');
-    console.log(`📋 必做任务数量: ${requiredTasks.length}`, requiredTasks.map(t => t.name));
     
     // 获取当天已完成的任务
     const completedTaskIds = completions
       .filter(completion => completion.completedAt.split('T')[0] === dateStr)
       .map(completion => completion.taskId);
-    console.log(`✅ 已完成任务ID: ${completedTaskIds.length}`, completedTaskIds);
     
     // 找出未完成的必做任务
     const incompleteTasks = requiredTasks.filter(task => !completedTaskIds.includes(task.id));
-    console.log(`❌ 未完成必做任务: ${incompleteTasks.length}`, incompleteTasks.map(t => t.name));
     
     if (incompleteTasks.length === 0) {
-      console.log(`✅ ${dateStr} 所有必做任务都已完成`);
       return { penalty: 0, penalizedTasks: [], healthLost: 0 };
     }
     
@@ -333,13 +287,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
     
     // 计算血量惩罚
     const healthLost = calculateDailyHealthPenalty(tasks, completions, dateStr);
-    
-    console.log(`⚠️ ${dateStr} 惩罚计算:`, {
-      penalty,
-      healthLost,
-      currentHealth: userData.health,
-      incompleteTasks: incompleteTasks.map(t => `${t.name}(${t.difficulty}星)`)
-    });
     
     // 扣除血量，但不能低于0
     const newHealth = clampHealth(userData.health - healthLost, userData.maxHealth);
@@ -353,8 +300,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
       
       set({ userData: updatedUserData });
       saveUserData(updatedUserData);
-      
-      console.log(`💔 血量更新: ${userData.health} -> ${newHealth}`);
     }
     
     return {
@@ -366,7 +311,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   checkAndApplyPenalties: () => {
     const { userData } = get();
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayLocalString();
     const lastActiveDate = userData.lastActiveDate;
     
     let totalPenalty = 0;
@@ -384,22 +329,15 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
     
     // 检查从上次活跃日期的下一天到昨天的所有日期
-    const lastActive = new Date(lastActiveDate + 'T00:00:00');
+    const lastActive = new Date(userData.lastActiveDate);
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     
     const currentDate = new Date(lastActive);
     currentDate.setDate(currentDate.getDate() + 1); // 从下一天开始
     
-    console.log('📅 检查日期范围:', {
-      from: currentDate.toISOString().split('T')[0],
-      to: yesterday.toISOString().split('T')[0],
-      lastActiveDate
-    });
-    
     // 如果没有需要检查的日期，直接返回
     if (currentDate > yesterday) {
-      console.log('✅ 没有需要检查的日期');
       // 仍然需要更新lastActiveDate
       const { userData: currentUserData } = get();
       const updatedUserData = {
@@ -412,8 +350,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
     
     while (currentDate <= yesterday) {
-      const dateStr = currentDate.toISOString().split('T')[0];
-      console.log('🔍 检查日期:', dateStr);
+      const dateStr = getLocalDateString(currentDate);
       daysChecked++;
       
       const result = get().applyDailyPenalty(dateStr);
@@ -423,14 +360,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
       if (result.penalty > 0 || result.healthLost > 0) {
         daysWithPenalties++;
         penalizedDays.push(dateStr);
-        console.log('⚠️ 发现惩罚:', {
-          date: dateStr,
-          penalty: result.penalty,
-          healthLost: result.healthLost,
-          tasks: result.penalizedTasks
-        });
-      } else {
-        console.log('✅ 无惩罚:', dateStr);
       }
       
       currentDate.setDate(currentDate.getDate() + 1);
@@ -446,14 +375,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set({ userData: updatedUserData });
     saveUserData(updatedUserData);
     
-    console.log('✅ 惩罚检查完成:', {
-      totalPenalty,
-      totalHealthLost,
-      daysChecked,
-      daysWithPenalties,
-      penalizedDays
-    });
-    
     return { 
       totalPenalty, 
       daysProcessed: daysChecked, 
@@ -466,7 +387,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   testPenaltySystem: () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = getLocalDateString(yesterday);
     
     return get().applyDailyPenalty(yesterdayStr);
   },

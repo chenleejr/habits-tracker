@@ -3,12 +3,24 @@ import { motion } from 'framer-motion';
 import { 
   Bug, 
   SkipForward, 
-  RotateCcw,
-  Clock,
-  Target
+  RotateCcw, 
+  X, 
+  Calendar, 
+  Heart, 
+  Zap, 
+  Target, 
+  TrendingUp,
+  Clock 
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { toast } from 'sonner';
+import { 
+  getTodayLocalString, 
+  getLocalDateString, 
+  getDaysLaterLocalString,
+  getDaysDifference,
+  createLocalDate
+} from '../utils/timezone';
 
 interface DebugPanelProps {
   isOpen: boolean;
@@ -24,24 +36,21 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
     applyDailyPenalty,
     updateUserData,
     setSelectedDate,
-    selectedDate
+    selectedDate,
+    loadData
   } = useAppStore();
   
   const [isProcessing, setIsProcessing] = useState(false);
   
   // 计算当前模拟的天数偏移
   const getCurrentDayOffset = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const selected = new Date(selectedDate);
-    const todayDate = new Date(today);
-    const diffTime = selected.getTime() - todayDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    const today = getTodayLocalString();
+    return getDaysDifference(today, selectedDate);
   };
   
   // 获取真实的今天日期
   const getRealToday = () => {
-    return new Date().toISOString().split('T')[0];
+    return getTodayLocalString();
   };
 
   // 模拟跳转到下一天（累积推移）
@@ -53,9 +62,9 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
       const currentPenalty = applyDailyPenalty(currentDateStr);
       
       // 基于当前选中日期推移一天
-      const currentSelected = new Date(selectedDate);
+      const currentSelected = createLocalDate(selectedDate);
       currentSelected.setDate(currentSelected.getDate() + 1);
-      const nextDayStr = currentSelected.toISOString().split('T')[0];
+      const nextDayStr = getLocalDateString(currentSelected);
       
       // 更新选中日期和最后活跃日期
       setSelectedDate(nextDayStr);
@@ -188,6 +197,8 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ isOpen, onClose }) => {
             <RotateCcw className="w-4 h-4" />
             <span>回到真实时间</span>
           </button>
+
+
         </div>
 
         <div className="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">

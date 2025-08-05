@@ -24,6 +24,7 @@ import { LEVELS } from '../types';
 import ConfirmDialog from '../components/ConfirmDialog';
 import DebugPanel from '../components/DebugPanel';
 import { toast } from 'sonner';
+import { getTodayLocalString } from '../utils/timezone';
 
 const Settings = () => {
   const { userData, updateUserSettings, resetData, tasks } = useAppStore();
@@ -40,7 +41,7 @@ const Settings = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `habits-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `habits-backup-${getTodayLocalString()}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -301,7 +302,7 @@ const Settings = () => {
       {/* 等级规则说明 */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">等级规则</h2>
+          <h2 className="text-lg font-semibold text-gray-900">境界规则</h2>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowLevelInfo(!showLevelInfo)}
@@ -318,7 +319,7 @@ const Settings = () => {
             exit={{ opacity: 0, height: 0 }}
             className="bg-white rounded-xl shadow-sm p-4 space-y-3"
           >
-            <h3 className="font-medium text-gray-900 mb-3">等级系统说明</h3>
+            <h3 className="font-medium text-gray-900 mb-3">修仙境界说明</h3>
             
             <div className="space-y-2">
               {LEVELS.map((level, index) => (
@@ -334,31 +335,31 @@ const Settings = () => {
                   </div>
                   <span className="text-sm text-gray-500">
                     {level.minPoints === 0 ? '0' : level.minPoints}
-                    {level.maxPoints === Infinity ? '+' : `-${level.maxPoints}`} 积分
+                    {level.maxPoints === Infinity ? '+' : `-${level.maxPoints}`} 修为值
                   </span>
                 </div>
               ))}
             </div>
             
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-2">积分规则</h4>
+              <h4 className="font-medium text-blue-900 mb-2">修为规则</h4>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>• 1星任务：10积分</li>
-                <li>• 2星任务：20积分</li>
-                <li>• 3星任务：30积分</li>
-                <li>• 4星任务：50积分</li>
-                <li>• 5星任务：80积分</li>
-                <li>• 连续完成奖励：每7天+5积分</li>
+                <li>• 1星任务：10修为值</li>
+                <li>• 2星任务：20修为值</li>
+                <li>• 3星任务：30修为值</li>
+                <li>• 4星任务：50修为值</li>
+                <li>• 5星任务：80修为值</li>
+                <li>• 连续完成奖励：每7天+5修为值</li>
               </ul>
             </div>
             
             <div className="mt-3 p-3 bg-red-50 rounded-lg">
-              <h4 className="font-medium text-red-900 mb-2">RPG惩罚机制</h4>
+              <h4 className="font-medium text-red-900 mb-2">修仙惩罚机制</h4>
               <ul className="text-sm text-red-700 space-y-1">
-                <li>• 未完成必做任务：扣除血量（1星5血，2星10血，3星15血，4星25血，5星40血）</li>
-                <li>• 完成任务回血：根据难度恢复2-6血量</li>
-                <li>• 血量保护：血量不会低于0，最大100</li>
-                <li>• 危险警告：血量低于30%时显示红色警告</li>
+                <li>• 未完成必做任务：损耗灵力（1星5点，2星10点，3星15点，4星25点，5星40点）</li>
+                <li>• 完成任务恢复：根据难度恢复2-6点灵力</li>
+                <li>• 灵力保护：灵力不会低于0，最大100</li>
+                <li>• 危险警告：灵力低于30%时显示红色警告</li>
                 <li>• 每日自动检查：应用启动时检查过往未完成的必做任务</li>
               </ul>
             </div>

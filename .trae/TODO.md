@@ -1,6 +1,10 @@
 # TODO:
 
-- [x] remove-duplicate-settings: 删除Settings页面中的"测试RPG惩罚系统"功能（与debug工具重复） (priority: High)
-- [x] improve-simulate-next-day: 改进DebugPanel中的模拟跳转功能：支持累积推移天数、显示当前天数、添加回到真实时间按钮 (priority: High)
-- [x] fix-penalty-bug: 修复bug：模拟跳转到明天时，如果存在未完成的任务，应该正确触发惩罚检查 (priority: High)
-- [x] remove-duplicate-debug-buttons: 删除DebugPanel中的重复按钮：手动触发惩罚检查、测试昨天惩罚、查看未完成任务、重置活跃日期 (priority: Medium)
+- [x] analyze-timezone-issues: 分析代码中所有时区相关问题，识别使用UTC时间的地方 (priority: High)
+- [x] fix-useappstore-timezone: 修复useAppStore.ts中的时区问题，包括selectedDate初始化和日期比较 (priority: High)
+- [x] fix-home-timezone: 修复Home.tsx中的日期显示时区问题 (priority: High)
+- [x] fix-debugpanel-timezone: 修复DebugPanel.tsx中的时区计算问题 (priority: High)
+- [x] fix-statistics-timezone: 修复Statistics.tsx中的日期计算时区问题 (priority: High)
+- [x] fix-points-utils-timezone: 修复utils/points.ts中所有日期相关函数的时区问题 (priority: High)
+- [x] create-timezone-utility: 创建统一的时区处理工具函数 (priority: Medium)
+- [x] test-timezone-fixes: 测试所有时区修复是否正确工作 (priority: Medium)

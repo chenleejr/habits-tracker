@@ -5,6 +5,7 @@ import { Calendar, TrendingUp, Target, Award, Flame } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { calculateDailyPoints, calculateStreak } from '../utils/points';
 import { formatPoints } from '../utils/points';
+import { getTodayLocalString, getLocalDateString, getDaysAgoLocalString, createLocalDate } from '../utils/timezone';
 
 const Statistics = () => {
   const { tasks, completions, userData } = useAppStore();
@@ -17,12 +18,13 @@ const Statistics = () => {
     
     // 计算最近7天的数据
     const last7Days = [];
-    const today = new Date();
+    const todayStr = getTodayLocalString();
+    const todayDate = createLocalDate(todayStr);
     
     for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
+      const date = new Date(todayDate);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = getLocalDateString(date);
       
       const dailyPoints = calculateDailyPoints(completions, tasks, dateStr);
       const dailyCompletions = completions.filter(c => 

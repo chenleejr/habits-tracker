@@ -154,15 +154,15 @@ const LevelUpAnimation = ({ show, oldLevel, newLevel, onComplete }: LevelUpAnima
                 }}
                 className="text-4xl font-bold text-white mb-2"
               >
-                升级了！
+                突破了！
               </motion.h1>
               
               <div className="text-2xl font-semibold text-yellow-300">
-                等级 {oldLevel} → {newLevel}
+                境界 {oldLevel} → {newLevel}
               </div>
               
               <div className="text-lg text-white/80">
-                恭喜达到新等级！
+                恭喜突破新境界！
               </div>
             </motion.div>
 
