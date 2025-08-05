@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Home, Target, BarChart3, Settings } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 const Layout = () => {
   const location = useLocation();
@@ -12,6 +13,29 @@ const Layout = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // 监听惩罚事件
+   useEffect(() => {
+     const handlePenaltyApplied = (event: any) => {
+       const { totalHealthLost, daysProcessed, penalizedDays } = event.detail;
+       
+       if (totalHealthLost > 0) {
+         toast.error(
+           `检测到 ${daysProcessed} 天未完成必做任务，生命值减少 ${totalHealthLost}`,
+           {
+             duration: 4000,
+             description: penalizedDays.length > 0 ? 
+               `影响日期: ${penalizedDays.join(', ')}` : undefined
+           }
+         );
+       } else if (daysProcessed > 0) {
+         toast.success(`检查了 ${daysProcessed} 天的任务，无需惩罚`);
+       }
+     };
+ 
+     window.addEventListener('penaltyApplied', handlePenaltyApplied);
+     return () => window.removeEventListener('penaltyApplied', handlePenaltyApplied);
+   }, []);
 
   const navItems = [
     { path: '/home', icon: Home, label: '主页' },

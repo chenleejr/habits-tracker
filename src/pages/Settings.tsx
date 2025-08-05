@@ -15,21 +15,23 @@ import {
   BellOff,
   Info,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  Bug
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { exportData, importData, clearAllData } from '../utils/storage';
 import { LEVELS } from '../types';
 import ConfirmDialog from '../components/ConfirmDialog';
+import DebugPanel from '../components/DebugPanel';
 import { toast } from 'sonner';
 
 const Settings = () => {
-  const { userData, updateUserSettings, resetData, tasks, testPenaltySystem } = useAppStore();
+  const { userData, updateUserSettings, resetData, tasks } = useAppStore();
   const [showLevelInfo, setShowLevelInfo] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [showFirstConfirm, setShowFirstConfirm] = useState(false);
   const [showSecondConfirm, setShowSecondConfirm] = useState(false);
-  const [isTestingPenalty, setIsTestingPenalty] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const handleExportData = () => {
     try {
@@ -94,43 +96,7 @@ const Settings = () => {
     window.location.reload();
   };
 
-  const handleTestPenalty = async () => {
-    setIsTestingPenalty(true);
-    
-    try {
-      const result = testPenaltySystem();
-      
-      if (result.penalty > 0 || result.healthLost > 0) {
-        const penaltyMessage = [];
-        if (result.penalty > 0) {
-          penaltyMessage.push(`扣除 ${result.penalty} 积分`);
-        }
-        if (result.healthLost > 0) {
-          penaltyMessage.push(`扣除 ${result.healthLost} 血量`);
-        }
-        
-        toast.error(
-          `RPG惩罚测试完成！${penaltyMessage.join('，')}\n未完成的必做任务：${result.penalizedTasks.join('、')}`,
-          {
-            duration: 5000,
-            description: '这是基于昨天的必做任务完成情况计算的RPG惩罚'
-          }
-        );
-      } else {
-        toast.success(
-          '惩罚测试完成！昨天所有必做任务都已完成，无需惩罚',
-          {
-            duration: 3000,
-            description: '继续保持这个好习惯！血量和积分都很安全'
-          }
-        );
-      }
-    } catch (error) {
-      toast.error('测试失败，请重试');
-    } finally {
-      setIsTestingPenalty(false);
-    }
-  };
+
 
   const SettingItem = ({ 
     icon: Icon, 
@@ -304,19 +270,18 @@ const Settings = () => {
           </div>
         </SettingItem>
 
+
+
         <SettingItem
-          icon={AlertTriangle}
-          title="测试RPG惩罚系统"
-          description="模拟昨天未完成必做任务的血量惩罚"
+          icon={Bug}
+          title="调试工具"
+          description="开发者调试面板"
         >
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={handleTestPenalty}
-            disabled={isTestingPenalty}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isTestingPenalty ? '测试中...' : '测试惩罚'}
-          </motion.button>
+            onClick={() => setShowDebugPanel(true)}
+            className="px-4 py-2 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-colors"
+          >打开调试</motion.button>
         </SettingItem>
 
         <SettingItem
@@ -432,6 +397,12 @@ const Settings = () => {
         confirmText="确认重置"
         cancelText="取消"
         danger
+      />
+
+      {/* 调试面板 */}
+      <DebugPanel
+        isOpen={showDebugPanel}
+        onClose={() => setShowDebugPanel(false)}
       />
     </div>
   );
